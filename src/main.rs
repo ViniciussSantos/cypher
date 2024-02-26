@@ -1,63 +1,33 @@
-use std::fs;
-
-fn encrypt_vigenere(plain_text: &str, key: &str) -> String {
-    let key: String = key.chars().filter(|&c| c.is_ascii_alphanumeric()).collect();
-    let key = key.to_ascii_lowercase();
-
-    let key_len = key.len();
-    if key_len == 0 {
-        return String::from(plain_text);
+fn shift_char(c: char, n: u32) -> char {
+    if c.is_ascii() && c as u32 >= 32 && c as u32 <= 127 {
+        let shifted = ((c as u32 - 32 + n) % 96 + 32) as u8;
+        char::from(shifted)
+    } else {
+        c
     }
+}
 
-    let mut index = 0;
+fn encode_char(key_char: char, plain_char: char) -> char {
+    shift_char(plain_char, key_char as u32 - 32)
+}
 
-    plain_text
+fn decode_char(key_char: char, encoded_char: char) -> char {
+    shift_char(encoded_char, 96 - key_char as u32 + 32)
+}
+
+fn encrypt_vigenere(cypher: &str, message: &str) -> String {
+    message
         .chars()
-        .map(|c| {
-            if c.is_ascii() && c.is_ascii_graphic() {
-                let first = 32_u8;
-                let shift = key.as_bytes()[index % key_len] - b'a';
-                index += 1;
-                let shifted = (c as u8)
-                    .wrapping_sub(first)
-                    .wrapping_add(shift)
-                    .wrapping_rem(95);
-                (first + shifted) as char
-            } else {
-                c
-            }
-        })
+        .zip(cypher.chars().cycle())
+        .map(|(plain_char, key_char)| encode_char(key_char, plain_char))
         .collect()
 }
 
-fn decrypt_vignere(ciphertext: &str, key: &str) -> String {
-    // Remove all unicode and non-ascii characters from key
-    let key: String = key.chars().filter(|&c| c.is_ascii_alphanumeric()).collect();
-    let key = key.to_ascii_lowercase();
-
-    let key_len = key.len();
-    if key_len == 0 {
-        return String::from(ciphertext);
-    }
-
-    let mut index = 0;
-
-    ciphertext
+fn decrypt_vignere(cypher: &str, message: &str) -> String {
+    message
         .chars()
-        .map(|c| {
-            if c.is_ascii() && c.is_ascii_graphic() {
-                let first = 32_u8;
-                let shift = key.as_bytes()[index % key_len] - 97;
-                index += 1;
-                let shifted = (c as u8)
-                    .wrapping_sub(first)
-                    .wrapping_add(95 - shift)
-                    .wrapping_rem(95);
-                (first + shifted) as char
-            } else {
-                c
-            }
-        })
+        .zip(cypher.chars().cycle())
+        .map(|(encoded_char, key_char)| decode_char(key_char, encoded_char))
         .collect()
 }
 
