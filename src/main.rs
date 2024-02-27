@@ -12,7 +12,10 @@ fn encode_char(key_char: char, plain_char: char) -> char {
 }
 
 fn decode_char(key_char: char, encoded_char: char) -> char {
-    shift_char(encoded_char, 96u8.wrapping_sub(key_char as u8) + 32)
+    shift_char(
+        encoded_char,
+        96u8.wrapping_sub(key_char as u8).wrapping_add(32),
+    )
 }
 
 fn encrypt_vigenere(cypher: &str, message: &str) -> String {
