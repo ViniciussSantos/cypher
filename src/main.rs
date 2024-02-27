@@ -1,6 +1,6 @@
-fn shift_char(c: char, n: u32) -> char {
+fn shift_char(c: char, n: u8) -> char {
     if c.is_ascii() && c as u32 >= 32 && c as u32 <= 127 {
-        let shifted = ((c as u32 - 32 + n) % 96 + 32) as u8;
+        let shifted = ((c as u32 - 32 + u32::from(n)) % 96 + 32) as u8;
         char::from(shifted)
     } else {
         c
@@ -8,11 +8,11 @@ fn shift_char(c: char, n: u32) -> char {
 }
 
 fn encode_char(key_char: char, plain_char: char) -> char {
-    shift_char(plain_char, key_char as u32 - 32)
+    shift_char(plain_char, key_char as u8 - 32)
 }
 
 fn decode_char(key_char: char, encoded_char: char) -> char {
-    shift_char(encoded_char, 96 - key_char as u32 + 32)
+    shift_char(encoded_char, 96u8.wrapping_sub(key_char as u8) + 32)
 }
 
 fn encrypt_vigenere(cypher: &str, message: &str) -> String {
@@ -46,11 +46,11 @@ fn main() {
 
     match command.as_str() {
         "encrypt" => {
-            let cipher_text = encrypt_vigenere(message, key);
+            let cipher_text = encrypt_vigenere(key, message);
             println!("Cipher text: {}", cipher_text);
         }
         "decrypt" => {
-            let decrypted_text = decrypt_vignere(message, key);
+            let decrypted_text = decrypt_vignere(key, message);
             println!("Decrypted text: {}", decrypted_text);
         }
         _ => {
