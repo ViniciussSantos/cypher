@@ -18,18 +18,18 @@ fn decode_char(key_char: char, encoded_char: char) -> char {
     )
 }
 
-fn encrypt_vigenere(cypher: &str, message: &str) -> String {
+fn encrypt_vigenere(key: &str, message: &str) -> String {
     message
         .chars()
-        .zip(cypher.chars().cycle())
+        .zip(key.chars().cycle())
         .map(|(plain_char, key_char)| encode_char(key_char, plain_char))
         .collect()
 }
 
-fn decrypt_vignere(cypher: &str, message: &str) -> String {
+fn decrypt_vignere(key: &str, message: &str) -> String {
     message
         .chars()
-        .zip(cypher.chars().cycle())
+        .zip(key.chars().cycle())
         .map(|(encoded_char, key_char)| decode_char(key_char, encoded_char))
         .collect()
 }
